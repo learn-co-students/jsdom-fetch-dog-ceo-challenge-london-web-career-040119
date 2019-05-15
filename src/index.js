@@ -18,9 +18,38 @@ const addDogImages = (urls) => {
 const fetchDogImages = () => fetch('https://dog.ceo/api/breeds/image/random/4')
   .then(response => response.json());
 
+const breedListElement = (breed) => {
+  const elem = document.createElement('li');
+  elem.value = breed;
+  elem.innerText = breed;
+  return elem;
+};
+
+const populateBreedsSelect = (breeds) => {
+  const breedsUl = document.querySelector('#dog-breeds');
+
+  Object.entries(breeds).forEach(([key, value]) => {
+    const breed = key;
+    if (value.length === 0) {
+      breedsUl.appendChild(breedListElement(breed));
+    } else {
+      value.forEach((variety) => {
+        const breedName = `${breed} (${variety})`;
+        breedsUl.appendChild(breedListElement(breedName));
+      });
+    }
+  });
+};
+
+const fetchDogBreeds = () => fetch('https://dog.ceo/api/breeds/list/all')
+  .then(response => response.json());
+
+
 document.addEventListener('DOMContentLoaded', () => {
   fetchDogImages()
     .then(json => addDogImages(json.message));
+  fetchDogBreeds()
+    .then(json => populateBreedsSelect(json.message));
 });
 
 console.log('%c HI', 'color: firebrick');

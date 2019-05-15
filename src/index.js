@@ -22,6 +22,7 @@ const breedListElement = (breed) => {
   const elem = document.createElement('li');
   elem.value = breed;
   elem.innerText = breed;
+  elem.className = 'breed';
   return elem;
 };
 
@@ -30,14 +31,24 @@ const populateBreedsSelect = (breeds) => {
 
   Object.entries(breeds).forEach(([key, value]) => {
     const breed = key;
+    let element;
     if (value.length === 0) {
-      breedsUl.appendChild(breedListElement(breed));
+      element = breedsUl.appendChild(breedListElement(breed));
     } else {
       value.forEach((variety) => {
         const breedName = `${breed} (${variety})`;
-        breedsUl.appendChild(breedListElement(breedName));
+        element = breedsUl.appendChild(breedListElement(breedName));
       });
     }
+
+    element.addEventListener('click', (event) => {
+      const el = event.target;
+      if (el.className === 'breed-selected') {
+        el.className = 'breed';
+      } else {
+        el.className = 'breed-selected';
+      }
+    });
   });
 };
 

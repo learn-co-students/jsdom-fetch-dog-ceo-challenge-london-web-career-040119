@@ -26,29 +26,33 @@ const breedListElement = (breed) => {
   return elem;
 };
 
-const populateBreedsSelect = (breeds) => {
+const populateBreedsSelect = (breeds, firstLetter) => {
   const breedsUl = document.querySelector('#dog-breeds');
+  breedsUl.innerHTML = '';
 
   Object.entries(breeds).forEach(([key, value]) => {
     const breed = key;
-    let element;
-    if (value.length === 0) {
-      element = breedsUl.appendChild(breedListElement(breed));
-    } else {
-      value.forEach((variety) => {
-        const breedName = `${breed} (${variety})`;
-        element = breedsUl.appendChild(breedListElement(breedName));
+
+    if (typeof firstLetter === 'undefined' || breed[0] === firstLetter) {
+      let element;
+      if (value.length === 0) {
+        element = breedsUl.appendChild(breedListElement(breed));
+      } else {
+        value.forEach((variety) => {
+          const breedName = `${breed} (${variety})`;
+          element = breedsUl.appendChild(breedListElement(breedName));
+        });
+      }
+
+      element.addEventListener('click', (event) => {
+        const el = event.target;
+        if (el.className === 'breed-selected') {
+          el.className = 'breed';
+        } else {
+          el.className = 'breed-selected';
+        }
       });
     }
-
-    element.addEventListener('click', (event) => {
-      const el = event.target;
-      if (el.className === 'breed-selected') {
-        el.className = 'breed';
-      } else {
-        el.className = 'breed-selected';
-      }
-    });
   });
 };
 
@@ -61,6 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(json => addDogImages(json.message));
   fetchDogBreeds()
     .then(json => populateBreedsSelect(json.message));
+
+  const breedDropdown = document.querySelector('#breed-dropdown');
+  breedDropdown.addEventListener('change', (event) => {
+    const firstLetter = event.target.value;
+    fetchDogBreeds()
+      .then(json => json.message)
+      .then(breeds => populateBreedsSelect(breeds, firstLetter));
+  });
 });
 
 console.log('%c HI', 'color: firebrick');

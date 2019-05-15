@@ -1,3 +1,20 @@
+const breedsArray = [];
+
+const saveData = (json) => {
+  Object.entries(json.message).forEach((breed) => {
+    const [key, value] = breed;
+    if (value.length === 0) {
+      breedsArray.push(key);
+    } else {
+      value.forEach((variety) => {
+        breedsArray.push(`${breed} (${variety})`);
+      });
+    }
+  });
+
+  return breedsArray;
+};
+
 const dogImage = (imgUrl) => {
   const dogWrapper = document.createElement('div');
   dogWrapper.className = 'dog-wrapper';
@@ -26,52 +43,39 @@ const breedListElement = (breed) => {
   return elem;
 };
 
-const populateBreedsSelect = (breeds, firstLetter) => {
+const populateBreedsSelect = (breeds) => {
   const breedsUl = document.querySelector('#dog-breeds');
   breedsUl.innerHTML = '';
 
-  Object.entries(breeds).forEach(([key, value]) => {
-    const breed = key;
-
-    if (typeof firstLetter === 'undefined' || breed[0] === firstLetter) {
-      let element;
-      if (value.length === 0) {
-        element = breedsUl.appendChild(breedListElement(breed));
+  breeds.forEach((breed) => {
+    const element = breedsUl.appendChild(breedListElement(breed));
+    element.addEventListener('click', (event) => {
+      const el = event.target;
+      if (el.className === 'breed-selected') {
+        el.className = 'breed';
       } else {
-        value.forEach((variety) => {
-          const breedName = `${breed} (${variety})`;
-          element = breedsUl.appendChild(breedListElement(breedName));
-        });
+        el.className = 'breed-selected';
       }
-
-      element.addEventListener('click', (event) => {
-        const el = event.target;
-        if (el.className === 'breed-selected') {
-          el.className = 'breed';
-        } else {
-          el.className = 'breed-selected';
-        }
-      });
-    }
+    });
   });
 };
 
 const fetchDogBreeds = () => fetch('https://dog.ceo/api/breeds/list/all')
-  .then(response => response.json());
+  .then(response => response.json())
+  .then(json => saveData(json));
 
+const filteredBreeds = firstLetter => breedsArray.filter(elem => elem[0] === firstLetter);
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchDogImages()
     .then(json => addDogImages(json.message));
   fetchDogBreeds()
-    .then(json => populateBreedsSelect(json.message));
+    .then(data => populateBreedsSelect(data));
 
   const breedDropdown = document.querySelector('#breed-dropdown');
   breedDropdown.addEventListener('change', (event) => {
     const firstLetter = event.target.value;
-    fetchDogBreeds()
-      .then(json => json.message)
-      .then(breeds => populateBreedsSelect(breeds, firstLetter));
+    populateBreedsSelect(filteredBreeds(firstLetter));
   });
 });
 

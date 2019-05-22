@@ -6,8 +6,9 @@ const saveData = (json) => {
     if (value.length === 0) {
       breedsArray.push(key);
     } else {
+      console.warn(value);
       value.forEach((variety) => {
-        breedsArray.push(`${breed} (${variety})`);
+        breedsArray.push(`${key} (${variety})`);
       });
     }
   });
